@@ -1,0 +1,19 @@
+{
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "autoprefixer": "^10.4.22",
+    "playwright": "^1.56.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@heroicons/react": "^2.2.0",
+    "@langchain/community": "^1.0.5",
+    "dotenv": "^17.2.3",
+    "framer-motion": "^12.23.24",
+    "langsmith": "^0.3.82",
+    "lucide-react": "^0.554.0",
+    "react-router-dom": "^7.9.6"
+  }
+}

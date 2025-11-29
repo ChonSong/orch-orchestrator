@@ -1,1 +1,56 @@
 ⚡ ORCH: Intelligent routing enabled...
+
+  #  node[3437937]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+
+  #  node[3437885]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+
+  #  /usr/bin/node[3438604]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0x7f1c9056fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7f1c9051c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7f1c9051c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7f1c8f849df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f1c8f8a49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f1c8f899668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7f1c8f899c9c  [/lib/x86_64-linux-gnu/libc.so.6]
+ 1: 0x7f376e56fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 1: 0x7fe2b196fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7fe2b191c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7fe2b191c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7fe2b0c49df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7fe2b0ca49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7fe2b0c99668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7fe2b0c99c9c  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7fe2b0c9c158 pthread_cond_wait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7fe2b0bd34ed uv_cond_wait [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7fe2b0bbf946  [/lib/x86_64-linux-gnu/libuv.so.1]
+11: 0x7fe2b0c9cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+ 2: 0x7f376e51c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 8: 0x7f1c8f89c158 pthread_cond_wait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7f1c8f7f34ed uv_cond_wait [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7f1c8f7df946  [/lib/x86_64-linux-gnu/libuv.so.1]
+11: 0x7f1c8f89cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+12: 0x7f1c8f91a7b8  [/lib/x86_64-linux-gnu/libc.so.6]
+ 3: 0x7f376e51c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7f376d849df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f376d8a49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f376d899668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7f376d8996ad  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7f376d91aa1d epoll_pwait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7f376d7f89d1  [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7f376d7e4e56 uv_run [/lib/x86_64-linux-gnu/libuv.so.1]
+12: 0x7fe2b0d1a7b8  [/lib/x86_64-linux-gnu/libc.so.6]
+11: 0x7f376e5f20a6 node::WorkerThreadsTaskRunner::DelayedTaskScheduler::Start()::{lambda(void*)#1}::_FUN(void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+12: 0x7f376d89cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+13: 0x7f376d91a7b8  [/lib/x86_64-linux-gnu/libc.so.6]

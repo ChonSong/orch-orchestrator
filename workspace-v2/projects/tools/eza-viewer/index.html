@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZA Tree Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background-color: #282a36;
+            color: #f8f8f2;
+            overflow: hidden;
+        }
+
+        .container {
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #44475a;
+            border-radius: 5px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ff5555;
+        }
+
+        .status-indicator.connected {
+            background-color: #50fa7b;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #6272a4;
+        }
+
+        .tree-view {
+            flex: 1;
+            background-color: #1e1f29;
+            border: 1px solid #44475a;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .tree-view::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .tree-view::-webkit-scrollbar-track {
+            background: #44475a;
+            border-radius: 5px;
+        }
+
+        .tree-view::-webkit-scrollbar-thumb {
+            background: #6272a4;
+            border-radius: 5px;
+        }
+
+        .tree-view::-webkit-scrollbar-thumb:hover {
+            background: #bd93f9;
+        }
+
+        .loading {
+            text-align: center;
+            color: #6272a4;
+            padding: 50px;
+        }
+
+        .error {
+            color: #ff5555;
+            padding: 10px;
+            background-color: #44475a;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        /* ANSI color overrides for better visibility */
+        .tree-view span[style*="color: #f8f8f2"],
+        .tree-view span[style*="color: #ffffff"] {
+            color: #f8f8f2 !important;
+        }
+
+        .tree-view span[style*="color: #50fa7b"] {
+            color: #50fa7b !important;
+        }
+
+        .tree-view span[style*="color: #ff5555"] {
+            color: #ff5555 !important;
+        }
+
+        .tree-view span[style*="color: #f1fa8c"] {
+            color: #f1fa8c !important;
+        }
+
+        .tree-view span[style*="color: #8be9fd"] {
+            color: #8be9fd !important;
+        }
+
+        .tree-view span[style*="color: #bd93f9"] {
+            color: #bd93f9 !important;
+        }
+
+        .tree-view span[style*="color: #6272a4"] {
+            color: #6272a4 !important;
+        }
+
+        .tree-view strong {
+            font-weight: bold;
+        }
+
+        .tree-view em {
+            font-style: italic;
+        }
+
+        .tree-view u {
+            text-decoration: underline;
+        }
+
+        .line {
+            min-height: 1.2em;
+            white-space: pre;
+            /* Preserve whitespace for tree structure */
+        }
+
+        .changed {
+            animation: flash 2s ease-out;
+        }
+
+        @keyframes flash {
+            0% {
+                background-color: rgba(80, 250, 123, 0.2);
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🌳 EZA Tree Viewer - Real-time File System Monitor</div>
+            <div class="status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="connectionStatus">Disconnected</span>
+                <span class="timestamp" id="timestamp"></span>
+            </div>
+        </div>
+        <div class="tree-view" id="treeView">
+            <div class="loading">Initializing file system watcher...</div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const treeView = document.getElementById('treeView');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const timestamp = document.getElementById('timestamp');
+
+        let socket;
+        let eventSource;
+        let useWebSocket = true;
+
+        // State for diffing
+        let previousLinesSet = new Set();
+        let isFirstRun = true;
+
+        function updateTimestamp() {
+            const now = new Date();
+            timestamp.textContent = now.toLocaleTimeString();
+        }
+
+        function setConnected(connected) {
+            if (connected) {
+                statusIndicator.classList.add('connected');
+                connectionStatus.textContent = 'Connected';
+            } else {
+                statusIndicator.classList.remove('connected');
+                connectionStatus.textContent = 'Disconnected';
+            }
+            updateTimestamp();
+        }
+
+        // Client-side ANSI to HTML conversion
+        function ansiToHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\x1b\[31m/g, '<span style="color: #ff5555;">')
+                .replace(/\x1b\[32m/g, '<span style="color: #50fa7b;">')
+                .replace(/\x1b\[33m/g, '<span style="color: #f1fa8c;">')
+                .replace(/\x1b\[34m/g, '<span style="color: #8be9fd;">')
+                .replace(/\x1b\[35m/g, '<span style="color: #bd93f9;">')
+                .replace(/\x1b\[36m/g, '<span style="color: #8be9fd;">')
+                .replace(/\x1b\[37m/g, '<span style="color: #f8f8f2;">')
+                .replace(/\x1b\[90m/g, '<span style="color: #6272a4;">')
+                .replace(/\x1b\[0m/g, '</span>')
+                .replace(/\x1b\[1m/g, '<strong>')
+                .replace(/\x1b\[22m/g, '</strong>')
+                .replace(/\x1b\[3m/g, '<em>')
+                .replace(/\x1b\[23m/g, '</em>')
+                .replace(/\x1b\[4m/g, '<u>')
+                .replace(/\x1b\[24m/g, '</u>');
+        }
+
+        function updateTreeView(rawOutput) {
+            if (!rawOutput) return;
+
+            const currentLines = rawOutput.split('\n');
+            const currentLinesSet = new Set(currentLines);
+
+            let html = '';
+
+            currentLines.forEach(line => {
+                if (line.trim() === '') return; // Skip empty lines
+
+                // Check if line is new/changed
+                // We ignore the first run to avoid flashing everything
+                const isNew = !isFirstRun && !previousLinesSet.has(line);
+                const lineHtml = ansiToHtml(line);
+                const className = isNew ? 'line changed' : 'line';
+                html += `<div class="${className}">${lineHtml}</div>`;
+            });
+
+            // Preserve scroll position
+            const scrollTop = treeView.scrollTop;
+            treeView.innerHTML = html;
+            treeView.scrollTop = scrollTop;
+
+            previousLinesSet = currentLinesSet;
+            isFirstRun = false;
+        }
+
+        function connectWebSocket() {
+            console.log('Attempting WebSocket connection...');
+            socket = io();
+
+            socket.on('connect', () => {
+                console.log('WebSocket connected');
+                setConnected(true);
+                useWebSocket = true;
+            });
+
+            socket.on('tree-update', (data) => {
+                // Use raw output for diffing
+                updateTreeView(data.output);
+                updateTimestamp();
+            });
+
+            socket.on('error', (data) => {
+                console.error('Socket error:', data.message);
+                treeView.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+            });
+
+            socket.on('disconnect', () => {
+                console.log('WebSocket disconnected');
+                setConnected(false);
+                if (useWebSocket) {
+                    setTimeout(connectSSE, 1000);
+                }
+            });
+        }
+
+        function connectSSE() {
+            console.log('Attempting Server-Sent Events connection...');
+            useWebSocket = false;
+
+            eventSource = new EventSource('/events');
+
+            eventSource.onopen = () => {
+                console.log('SSE connected');
+                setConnected(true);
+            };
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    // Use raw output if available, otherwise fallback to htmlOutput (though diffing won't work as well)
+                    // server.js sends { output, htmlOutput } in SSE too?
+                    // Let's check server.js... yes it does.
+                    updateTreeView(data.output || data.htmlOutput);
+                    updateTimestamp();
+                } catch (error) {
+                    console.error('Error parsing SSE data:', error);
+                }
+            };
+
+            eventSource.onerror = () => {
+                console.error('SSE connection error');
+                setConnected(false);
+                eventSource.close();
+                setTimeout(connectWebSocket, 2000);
+            };
+        }
+
+        function startConnection() {
+            treeView.innerHTML = '<div class="loading">Establishing connection...</div>';
+            connectWebSocket();
+        }
+
+        startConnection();
+        setInterval(updateTimestamp, 1000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+# Secrets
+.env
+.ai-keys.env
+client_secret_*.json
+credentials.json
+token.json
+
+# Dependencies
+node_modules/
+scripts/node_modules/
+
+# Logs and Data
+*.log
+orch_history.json
+orch_telemetry.json
+orch_filesystem.log
+orch_lso.json
+scripts/logs/
+
+# System
+.DS_Store
+backup/
+tmp/
+
+# Build
+dist/
+build/

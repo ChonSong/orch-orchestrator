@@ -1,0 +1,360 @@
+/* Mobile Code-Server Overrides */
+
+/* 0. Visual Indicator (Green Bottom Border) to confirm Mobile Mode is Active */
+body {
+    border-bottom: 5px solid #00ff00 !important;
+    /* Thicker border */
+    box-sizing: border-box;
+    overscroll-behavior-y: none !important;
+    /* Prevent pull-to-refresh/bounce */
+}
+
+/* Prevent accidental text selection in UI (Sidebar, Activity Bar, etc.) */
+.monaco-workbench {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+/* Re-enable selection for Editor and Inputs */
+.monaco-editor,
+.monaco-inputbox,
+textarea,
+input,
+.xterm-viewport {
+    /* Allow selection in terminal */
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
+/* Verify CSS Loading: Add border to the JS-injected button */
+.mobile-sidebar-toggle {
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Terminal Touch Fixes */
+.xterm-viewport {
+    touch-action: pan-y !important;
+    /* Allow vertical scrolling */
+}
+
+
+/* 1. Larger Touch Targets for Tree View */
+.monaco-list-row {
+    height: 28px !important;
+    /* Increase row height */
+    line-height: 28px !important;
+}
+
+.monaco-tl-contents {
+    display: flex;
+    align-items: center;
+}
+
+/* 2. Scrollbar Improvements */
+/* 2. Scrollbar Improvements */
+/* Target Monaco's custom scrollbars */
+.monaco-scrollable-element>.scrollbar>.slider {
+    min-width: 25px !important;
+    /* Much wider vertical scrollbar */
+    min-height: 25px !important;
+    /* Much taller horizontal scrollbar */
+    border-radius: 12px !important;
+    background: rgba(100, 100, 100, 0.8) !important;
+}
+
+.monaco-scrollable-element>.scrollbar>.slider:hover {
+    background: rgba(100, 100, 100, 1.0) !important;
+}
+
+/* Target native/webkit scrollbars (e.g. in terminal or other containers) */
+::-webkit-scrollbar {
+    width: 25px !important;
+    height: 25px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.8) !important;
+    border-radius: 12px !important;
+    border: 4px solid transparent !important;
+    /* Padding around thumb */
+    background-clip: content-box !important;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+/* Specific override for xterm.js terminal viewport */
+.xterm-viewport::-webkit-scrollbar {
+    width: 30px !important;
+    /* Even wider for terminal to be sure */
+    height: 30px !important;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb {
+    background-color: rgba(120, 120, 120, 0.9) !important;
+    border: 4px solid transparent !important;
+    background-clip: content-box !important;
+    border-radius: 15px !important;
+}
+
+/* 3. Font Size Adjustments */
+.monaco-workbench {
+    font-size: 14px !important;
+}
+
+.monaco-editor {
+    font-size: 16px !important;
+    /* Larger font for mobile readability */
+    line-height: 1.5 !important;
+    /* More breathing room */
+}
+
+.xterm-rows {
+    font-size: 16px !important;
+    /* Larger terminal font */
+}
+
+/* 4. Hide/Show Sidebar Button (if not handled by JS, ensure visibility) */
+#mobile-sidebar-toggle {
+    /* Ensure it's on top */
+    z-index: 99999 !important;
+}
+
+/* 5. General Touch Optimizations */
+input,
+select,
+button,
+textarea {
+    font-size: 16px !important;
+    /* Prevent zoom on focus on iOS */
+}
+
+/* Context Menu Touch Target */
+.monaco-menu .monaco-action-bar.vertical .action-item {
+    padding: 12px 0 !important;
+    /* Larger touch area for context menus */
+}
+
+/* 6. Tabs and Breadcrumbs Touch Targets */
+.tabs-container .tab {
+    height: 35px !important;
+    /* Taller tabs */
+    line-height: 35px !important;
+    padding-top: 4px !important;
+}
+
+.monaco-breadcrumbs .monaco-breadcrumb-item {
+    padding: 4px 8px !important;
+    /* Larger breadcrumbs */
+    font-size: 14px !important;
+}
+
+/* 7. Status Bar Touch Targets */
+.monaco-status-bar-item {
+    padding: 0 12px !important;
+    /* Wider status bar items */
+    font-size: 13px !important;
+}
+
+/* 8. Responsive Adjustments */
+@media (max-width: 480px) {
+
+    /* Hide non-essential status bar items on very small screens if needed */
+    /* For now, just ensure they don't overflow badly */
+    .monaco-status-bar-item {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* 9. Quick Pick / Command Palette Touch Targets */
+.quick-input-widget .monaco-list-row {
+    height: 32px !important;
+    /* Taller items in command palette */
+    line-height: 32px !important;
+}
+
+/* 10. Dropdowns and Selects */
+.monaco-dropdown,
+.monaco-select-box {
+    height: 30px !important;
+    line-height: 30px !important;
+}
+
+/* 11. Notifications */
+.monaco-list-row.notification-list-item {
+    min-height: 60px !important;
+    /* Larger notification toasts */
+}
+
+.notifications-toasts .monaco-list-row .action-label {
+    padding: 8px !important;
+    /* Larger action buttons in notifications */
+}
+
+/* 12. Mobile Toolbar */
+.mobile-toolbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    background: #1e1e1e;
+    /* Dark background matching VS Code */
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 100000;
+    overflow-x: auto;
+    /* Allow scrolling if too many buttons */
+    padding: 0 5px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-toolbar-btn {
+    background: #333;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 5px 10px;
+    min-width: 40px;
+    height: 35px;
+    font-size: 14px;
+    font-family: monospace;
+    margin: 0 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    flex-shrink: 0;
+    /* Don't shrink buttons */
+}
+
+.mobile-toolbar-btn:active,
+.mobile-toolbar-btn.active {
+    background: #007acc;
+    border-color: #007acc;
+}
+
+/* Adjust body/workbench to not be covered by toolbar */
+.monaco-workbench {
+    padding-bottom: 45px !important;
+}
+
+/* 13. Suggestion Widget (IntelliSense) */
+.monaco-list-row.suggestion-container {
+    height: 30px !important;
+    /* Taller suggestions */
+    line-height: 30px !important;
+    font-size: 14px !important;
+}
+
+.monaco-editor .suggest-widget {
+    width: 300px !important;
+    /* Wider widget */
+}
+
+.monaco-editor .suggest-widget .details {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* 14. Parameter Hints */
+.monaco-editor .parameter-hints-widget {
+    min-height: 40px !important;
+    padding: 8px !important;
+    font-size: 14px !important;
+}
+
+/* 15. Dialogs and Modals */
+.monaco-dialog-box {
+    min-width: 300px !important;
+    /* Wider dialogs */
+}
+
+.monaco-dialog-box .dialog-message {
+    font-size: 16px !important;
+    padding: 20px !important;
+}
+
+.monaco-dialog-box .dialog-buttons .monaco-button {
+    padding: 10px 20px !important;
+    /* Larger buttons */
+    font-size: 14px !important;
+    height: auto !important;
+}
+
+/* 16. Search Widget */
+.monaco-editor .find-widget {
+    transform-origin: top right;
+    transform: scale(1.2) !important;
+    /* Scale up find widget */
+    top: 40px !important;
+    /* Move down slightly */
+    right: 20px !important;
+}
+
+/* 17. Welcome Toast */
+.mobile-welcome-toast {
+    position: fixed;
+    bottom: 60px;
+    /* Above toolbar */
+    right: 10px;
+    width: 300px;
+    background: #252526;
+    color: #cccccc;
+    border: 1px solid #454545;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    z-index: 100001;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    animation: slideIn 0.3s ease-out;
+}
+
+.mobile-welcome-toast .toast-header {
+    padding: 10px;
+    background: #333333;
+    border-bottom: 1px solid #454545;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px 5px 0 0;
+}
+
+.mobile-welcome-toast .toast-content {
+    padding: 15px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.mobile-welcome-toast ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.mobile-welcome-toast button#toast-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

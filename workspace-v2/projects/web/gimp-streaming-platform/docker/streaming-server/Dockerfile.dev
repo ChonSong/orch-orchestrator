@@ -1,0 +1,148 @@
+# Streaming Server Development Container
+# Development version with hot reloading and debugging
+
+FROM node:18-alpine
+
+# Set labels
+LABEL maintainer="GIMP Streaming Platform <platform@gimp-streaming.com>"
+LABEL description="Development WebRTC and VNC streaming server"
+LABEL version="dev"
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PORT=8080
+ENV VNC_HOST=localhost
+ENV VNC_PORT=5901
+ENV WEBRTC_STUN_SERVER=stun:stun.l.google.com:19302
+ENV REDIS_URL=redis://localhost:6379
+ENV LOG_LEVEL=debug
+
+# Install system dependencies
+RUN apk add --no-cache \
+    # Development tools
+    git \
+    curl \
+    bash \
+    vim \
+    # VNC client for testing
+    tigervnc-viewer \
+    # Graphics processing
+    ffmpeg \
+    imagemagick \
+    # Network debugging
+    netcat-openbsd \
+    tcpdump
+
+# Create app user
+RUN addgroup -g 1001 -S streaming && \
+    adduser -S streaming -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install && npm cache clean --force
+
+# Copy application code
+COPY --chown=streaming:streaming . .
+
+# Create development directories
+RUN mkdir -p /app/logs /app/temp /app/recordings /app/debug && \
+    chown -R streaming:streaming /app
+
+# Install nodemon for hot reloading
+RUN npm install -g nodemon
+
+# Create development startup script
+RUN cat > /app/dev-start.sh << 'EOF'
+#!/bin/sh
+set -e
+
+echo "Starting GIMP Streaming Server in Development Mode..."
+echo "Environment: $NODE_ENV"
+echo "Port: $PORT"
+echo "VNC Host: $VNC_HOST:$VNC_PORT"
+
+# Create log directory
+mkdir -p /app/logs
+
+# Wait for Redis if specified
+if [ -n "$REDIS_URL" ] && [ "$REDIS_URL" != "redis://localhost:6379" ]; then
+    echo "Waiting for Redis at $REDIS_URL..."
+    # Extract host and port from REDIS_URL
+    REDIS_HOST=$(echo $REDIS_URL | sed 's|redis://||' | cut -d: -f1)
+    REDIS_PORT=$(echo $REDIS_URL | sed 's|.*://||' | cut -d: -f2)
+    while ! nc -z $REDIS_HOST $REDIS_PORT; do
+        echo "Waiting for Redis..."
+        sleep 1
+    done
+    echo "Redis is ready!"
+fi
+
+# Enable debug mode
+export DEBUG=streaming:*
+
+# Start with nodemon for hot reloading
+exec nodemon --inspect=0.0.0.0:9229 --legacy-watch server.js
+EOF
+
+RUN chmod +x /app/dev-start.sh
+
+# Create debugging utilities
+RUN cat > /app/debug.sh << 'EOF'
+#!/bin/sh
+echo "=== GIMP Streaming Server Debug Info ==="
+echo "Node.js version: $(node --version)"
+echo "NPM version: $(npm --version)"
+echo "Environment: $NODE_ENV"
+echo "Working directory: $(pwd)"
+echo "User: $(whoami)"
+echo "Process ID: $$"
+echo "Memory usage:"
+free -h
+echo "Network connections:"
+netstat -tlnp 2>/dev/null || ss -tlnp
+echo "Running processes:"
+ps aux | grep -E "(node|streaming)" | grep -v grep
+EOF
+
+RUN chmod +x /app/debug.sh
+
+# Create test script
+RUN cat > /app/test.sh << 'EOF'
+#!/bin/sh
+echo "=== Running Streaming Server Tests ==="
+
+# Run unit tests
+npm test
+
+# Run integration tests
+if [ -f "test/integration.js" ]; then
+    npm run test:integration
+fi
+
+# Run end-to-end tests
+if [ -f "test/e2e.js" ]; then
+    npm run test:e2e
+fi
+
+echo "=== All tests completed ==="
+EOF
+
+RUN chmod +x /app/test.sh
+
+# Switch to app user
+USER streaming
+
+# Expose ports
+EXPOSE 8080 9229
+
+# Development health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8080}/health || exit 1
+
+# Start development server
+CMD ["/app/dev-start.sh"]

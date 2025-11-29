@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gimp-streaming
+  labels:
+    name: gimp-streaming
+    environment: production
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: infrastructure
+  annotations:
+    description: "GIMP Streaming Platform - Main application namespace"
+    contact: "platform-team@gimp-streaming.com"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gimp-streaming-staging
+  labels:
+    name: gimp-streaming-staging
+    environment: staging
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: infrastructure
+  annotations:
+    description: "GIMP Streaming Platform - Staging environment"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gimp-streaming-monitoring
+  labels:
+    name: gimp-streaming-monitoring
+    environment: production
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: monitoring
+  annotations:
+    description: "GIMP Streaming Platform - Monitoring and logging"

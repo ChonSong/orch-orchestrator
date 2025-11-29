@@ -1,0 +1,135 @@
+# Frontend Development Dockerfile
+# Development build for React applications with hot reloading
+
+FROM node:18-alpine
+
+# Set labels
+LABEL maintainer="GIMP Streaming Platform <platform@gimp-streaming.com>"
+LABEL description="Development frontend application"
+LABEL version="dev"
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV CHOKIDAR_USEPOLLING=true
+ENV FAST_REFRESH=true
+
+# Install development dependencies
+RUN apk add --no-cache \
+    git \
+    curl \
+    bash \
+    vim
+
+# Create app user
+RUN addgroup -g 1001 -S frontend && \
+    adduser -S frontend -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY --chown=frontend:frontend package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install && npm cache clean --force
+
+# Copy source code
+COPY --chown=frontend:frontend . .
+
+# Create necessary directories
+RUN mkdir -p /app/node_modules/.cache && \
+    chown -R frontend:frontend /app
+
+# Create development startup script
+RUN cat > /app/dev-start.sh << 'EOF'
+#!/bin/sh
+set -e
+
+echo "Starting Frontend Application in Development Mode..."
+echo "Environment: $NODE_ENV"
+echo "Port: $PORT"
+echo "Fast Refresh: $FAST_REFRESH"
+
+# Start the development server with hot reloading
+exec npm start
+EOF
+
+RUN chmod +x /app/dev-start.sh
+
+# Create debugging utilities
+RUN cat > /app/debug.sh << 'EOF'
+#!/bin/sh
+echo "=== Frontend Application Debug Info ==="
+echo "Node.js version: $(node --version)"
+echo "NPM version: $(npm --version)"
+echo "Environment: $NODE_ENV"
+echo "Working directory: $(pwd)"
+echo "User: $(whoami)"
+echo "Available scripts:"
+npm run || true
+echo "Memory usage:"
+free -h
+echo "Network connections:"
+netstat -tlnp 2>/dev/null || ss -tlnp | grep :$PORT
+EOF
+
+RUN chmod +x /app/debug.sh
+
+# Create test script
+RUN cat > /app/test.sh << 'EOF'
+#!/bin/sh
+echo "=== Running Frontend Tests ==="
+
+# Run linting
+echo "Running linter..."
+npm run lint || echo "Linting failed"
+
+# Run unit tests
+echo "Running unit tests..."
+npm test -- --coverage --watchAll=false
+
+# Run integration tests if available
+if [ -f "package.json" ] && grep -q "test:integration" package.json; then
+    echo "Running integration tests..."
+    npm run test:integration
+fi
+
+# Run end-to-end tests if available
+if [ -f "package.json" ] && grep -q "test:e2e" package.json; then
+    echo "Running e2e tests..."
+    npm run test:e2e
+fi
+
+echo "=== All tests completed ==="
+EOF
+
+RUN chmod +x /app/test.sh
+
+# Create healthcheck script
+RUN cat > /app/healthcheck.sh << 'EOF'
+#!/bin/sh
+set -e
+
+# Check if the development server is responding
+if curl -f http://localhost:${PORT:-3000} > /dev/null 2>&1; then
+    exit 0
+else
+    exit 1
+fi
+EOF
+
+RUN chmod +x /app/healthcheck.sh
+
+# Switch to app user
+USER frontend
+
+# Expose port
+EXPOSE 3000
+
+# Development health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /app/healthcheck.sh
+
+# Start development server
+CMD ["/app/dev-start.sh"]

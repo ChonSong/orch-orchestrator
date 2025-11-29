@@ -1,0 +1,360 @@
+#!/usr/bin/env node
+
+/**
+ * Parallel Agent Executor
+ *
+ * Executes multiple Gemini agents simultaneously for independent tasks.
+ * Provides 2-3x speed improvements when tasks have no dependencies.
+ *
+ * Features:
+ * - Concurrent agent execution with Promise.allSettled
+ * - Intelligent timeout management
+ * - Partial success handling
+ * - Result aggregation and error reporting
+ */
+
+const { execSync, spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+// Configuration
+const CONFIG = {
+  MAX_CONCURRENT: 5,        // Max parallel agents
+  DEFAULT_TIMEOUT: 30000,   // 30s default timeout per agent
+  MAX_TIMEOUT: 120000,      // 2 min max timeout
+  BUFFER_SIZE: 10 * 1024 * 1024  // 10MB buffer
+};
+
+class ParallelExecutor {
+  constructor(options = {}) {
+    this.maxConcurrent = options.maxConcurrent || CONFIG.MAX_CONCURRENT;
+    this.defaultTimeout = options.defaultTimeout || CONFIG.DEFAULT_TIMEOUT;
+  }
+
+  /**
+   * Execute multiple agents in parallel
+   *
+   * @param {Array} tasks - Array of {agent, prompt, timeout?}
+   * @returns {Promise<Object>} - Results with successes and failures
+   */
+  async execute(tasks) {
+    console.log(`⚡ Parallel Execution: ${tasks.length} agents`);
+    console.log(`   Max concurrent: ${this.maxConcurrent}`);
+    console.log(`   Tasks: ${tasks.map(t => t.agent).join(', ')}\n`);
+
+    const startTime = Date.now();
+    const batches = this.createBatches(tasks, this.maxConcurrent);
+    const allResults = [];
+
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      console.log(`\n🔄 Batch ${i + 1}/${batches.length} (${batch.length} agents)`);
+
+      const promises = batch.map(task => this.executeAgent(task));
+      const results = await Promise.allSettled(promises);
+
+      allResults.push(...results);
+
+      // Show batch progress
+      const successes = results.filter(r => r.status === 'fulfilled').length;
+      const failures = results.filter(r => r.status === 'rejected').length;
+      console.log(`   ✅ Success: ${successes}, ❌ Failed: ${failures}`);
+    }
+
+    const elapsed = Date.now() - startTime;
+    return this.aggregateResults(allResults, tasks, elapsed);
+  }
+
+  /**
+   * Execute single agent
+   */
+  async executeAgent(task) {
+    const { agent, prompt, timeout = this.defaultTimeout } = task;
+
+    console.log(`\n🤖 Starting: ${agent}`);
+    console.log(`   Prompt: ${prompt.slice(0, 60)}...`);
+    console.log(`   Timeout: ${timeout}ms`);
+
+    const startTime = Date.now();
+
+    return new Promise((resolve, reject) => {
+      try {
+        // Escape prompt for shell
+        const escapedPrompt = prompt.replace(/"/g, '\\"').replace(/\$/g, '\\$');
+        const cmd = `gemini-delegate ${agent} "${escapedPrompt}"`;
+
+        const child = spawn('sh', ['-c', cmd], {
+          timeout: timeout,
+          maxBuffer: CONFIG.BUFFER_SIZE
+        });
+
+        let stdout = '';
+        let stderr = '';
+
+        child.stdout.on('data', (data) => {
+          stdout += data.toString();
+        });
+
+        child.stderr.on('data', (data) => {
+          stderr += data.toString();
+        });
+
+        child.on('close', (code) => {
+          const elapsed = Date.now() - startTime;
+
+          if (code === 0) {
+            console.log(`   ✅ ${agent} completed (${elapsed}ms)`);
+            resolve({
+              agent,
+              output: stdout,
+              elapsed,
+              success: true
+            });
+          } else {
+            console.log(`   ❌ ${agent} failed (code ${code}, ${elapsed}ms)`);
+            reject(new Error(`Agent ${agent} exited with code ${code}: ${stderr}`));
+          }
+        });
+
+        child.on('error', (error) => {
+          const elapsed = Date.now() - startTime;
+          console.log(`   ❌ ${agent} error (${elapsed}ms)`);
+          reject(new Error(`Agent ${agent} error: ${error.message}`));
+        });
+
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  /**
+   * Create batches for concurrent execution
+   */
+  createBatches(tasks, batchSize) {
+    const batches = [];
+    for (let i = 0; i < tasks.length; i += batchSize) {
+      batches.push(tasks.slice(i, i + batchSize));
+    }
+    return batches;
+  }
+
+  /**
+   * Aggregate results from all agents
+   */
+  aggregateResults(results, tasks, elapsed) {
+    const successes = [];
+    const failures = [];
+
+    results.forEach((result, index) => {
+      const task = tasks[index];
+
+      if (result.status === 'fulfilled') {
+        successes.push({
+          agent: task.agent,
+          output: result.value.output,
+          elapsed: result.value.elapsed
+        });
+      } else {
+        failures.push({
+          agent: task.agent,
+          error: result.reason.message,
+          task: task.prompt.slice(0, 100)
+        });
+      }
+    });
+
+    const summary = {
+      totalAgents: tasks.length,
+      successes: successes.length,
+      failures: failures.length,
+      totalElapsed: elapsed,
+      avgElapsedPerAgent: Math.round(elapsed / tasks.length),
+      successRate: Math.round((successes.length / tasks.length) * 100),
+      results: {
+        successes,
+        failures
+      }
+    };
+
+    this.printSummary(summary);
+
+    return summary;
+  }
+
+  /**
+   * Print execution summary
+   */
+  printSummary(summary) {
+    console.log('\n' + '='.repeat(80));
+    console.log('PARALLEL EXECUTION SUMMARY');
+    console.log('='.repeat(80));
+
+    console.log(`\nTotal Agents: ${summary.totalAgents}`);
+    console.log(`✅ Successes: ${summary.successes}`);
+    console.log(`❌ Failures: ${summary.failures}`);
+    console.log(`Success Rate: ${summary.successRate}%`);
+
+    console.log(`\nTiming:`);
+    console.log(`  Total: ${summary.totalElapsed}ms (${(summary.totalElapsed / 1000).toFixed(1)}s)`);
+    console.log(`  Avg per agent: ${summary.avgElapsedPerAgent}ms`);
+
+    if (summary.results.failures.length > 0) {
+      console.log('\n❌ Failed Agents:');
+      summary.results.failures.forEach((f, i) => {
+        console.log(`  ${i + 1}. ${f.agent}`);
+        console.log(`     Error: ${f.error}`);
+        console.log(`     Task: ${f.task}...`);
+      });
+    }
+
+    console.log('\n' + '='.repeat(80));
+  }
+}
+
+// ============================================================================
+// CLI Interface
+// ============================================================================
+
+async function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0 || args[0] === '--help') {
+    console.log(`
+Parallel Agent Executor - Execute Multiple Agents Simultaneously
+
+Usage:
+  parallel-executor <task-file>
+  parallel-executor --agents <agent1,agent2> --prompt "<prompt>"
+
+Options:
+  --max-concurrent N    Max parallel agents (default: 5)
+  --timeout N           Timeout per agent in ms (default: 30000)
+
+Task File Format (JSON):
+[
+  {
+    "agent": "coder",
+    "prompt": "Implement user authentication",
+    "timeout": 45000
+  },
+  {
+    "agent": "tester",
+    "prompt": "Create integration tests",
+    "timeout": 30000
+  }
+]
+
+Quick Mode:
+  parallel-executor --agents coder,tester --prompt "Task description"
+
+  This sends the same prompt to all agents in parallel.
+
+Examples:
+  # Execute from file
+  parallel-executor tasks.json
+
+  # Quick parallel execution
+  parallel-executor --agents coder,tester,reviewer --prompt "Review auth.ts"
+
+  # With custom settings
+  parallel-executor tasks.json --max-concurrent 3 --timeout 60000
+
+Speed Improvement:
+  Sequential: 3 agents × 30s = 90s total
+  Parallel:   3 agents × 30s = 30s total (3x faster!)
+`);
+    process.exit(0);
+  }
+
+  const options = {
+    maxConcurrent: CONFIG.MAX_CONCURRENT,
+    defaultTimeout: CONFIG.DEFAULT_TIMEOUT
+  };
+
+  // Parse options
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--max-concurrent' && args[i + 1]) {
+      options.maxConcurrent = parseInt(args[i + 1]);
+      i++;
+    } else if (args[i] === '--timeout' && args[i + 1]) {
+      options.defaultTimeout = parseInt(args[i + 1]);
+      i++;
+    }
+  }
+
+  const executor = new ParallelExecutor(options);
+  let tasks = [];
+
+  // Check for quick mode (--agents)
+  const agentsIndex = args.indexOf('--agents');
+  const promptIndex = args.indexOf('--prompt');
+
+  if (agentsIndex !== -1 && promptIndex !== -1) {
+    // Quick mode
+    const agents = args[agentsIndex + 1].split(',');
+    const prompt = args[promptIndex + 1];
+
+    tasks = agents.map(agent => ({
+      agent: agent.trim(),
+      prompt: prompt
+    }));
+
+    console.log(`🚀 Quick Mode: ${agents.length} agents with same prompt\n`);
+  } else {
+    // File mode
+    const taskFile = args[0];
+
+    if (!fs.existsSync(taskFile)) {
+      console.error(`❌ Task file not found: ${taskFile}`);
+      process.exit(1);
+    }
+
+    try {
+      tasks = JSON.parse(fs.readFileSync(taskFile, 'utf8'));
+    } catch (error) {
+      console.error(`❌ Error parsing task file: ${error.message}`);
+      process.exit(1);
+    }
+  }
+
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+    console.error('❌ No tasks to execute');
+    process.exit(1);
+  }
+
+  // Validate tasks
+  for (const task of tasks) {
+    if (!task.agent || !task.prompt) {
+      console.error('❌ Each task must have "agent" and "prompt"');
+      process.exit(1);
+    }
+  }
+
+  try {
+    const result = await executor.execute(tasks);
+
+    if (result.failures === 0) {
+      console.log('\n✅ All agents completed successfully!');
+      process.exit(0);
+    } else if (result.successes > 0) {
+      console.log('\n⚠️  Partial success - some agents failed');
+      process.exit(0); // Don't fail on partial success
+    } else {
+      console.error('\n❌ All agents failed');
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error('❌ Execution error:', error.message);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  main().catch(error => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
+}
+
+module.exports = { ParallelExecutor };

@@ -1,0 +1,205 @@
+# GIMP Development Container
+# Optimized for development with hot reloading and debugging tools
+
+FROM ubuntu:22.04
+
+# Set labels
+LABEL maintainer="GIMP Streaming Platform <platform@gimp-streaming.com>"
+LABEL description="GIMP development container with VNC streaming"
+LABEL version="dev"
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+ENV DISPLAY=:1
+ENV VNC_PORT=5901
+ENV VNC_PASSWORD=dev_vnc_password
+ENV NOVNC_PORT=6080
+ENV USER=gimp
+ENV HOME=/home/gimp
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+# Create user
+RUN groupadd -r gimp && useradd -r -g gimp -d $HOME -s /bin/bash gimp \
+    && mkdir -p $HOME \
+    && chown -R gimp:gimp $HOME
+
+# Install development dependencies
+RUN apt-get update && apt-get install -y \
+    # GIMP and development tools
+    gimp \
+    gimp-plugin-registry \
+    gimp-data-extras \
+    gimp-dev \
+    # VNC server
+    tigervnc-standalone-server \
+    tigervnc-xorg-extension \
+    # Window manager
+    openbox \
+    # Development tools
+    build-essential \
+    cmake \
+    git \
+    vim \
+    nano \
+    htop \
+    tree \
+    curl \
+    wget \
+    # Python for scripting
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-gi \
+    python3-gi-cairo \
+    gir1.2-gtk-3.0 \
+    # Audio support
+    pulseaudio \
+    pulseaudio-utils \
+    # Fonts
+    fonts-dejavu-core \
+    fonts-liberation \
+    fonts-noto-cjk \
+    # System utilities
+    supervisor \
+    autocutsel \
+    rsync \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python development dependencies
+RUN pip3 install --no-cache-dir \
+    pillow \
+    numpy \
+    opencv-python \
+    requests \
+    websockets \
+    flask \
+    ipython \
+    jupyter
+
+# Install noVNC for development
+RUN cd /tmp \
+    && wget -qO- https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz | tar xz \
+    && mv noVNC-1.4.0 /opt/noVNC \
+    && cd /opt/noVNC \
+    && npm install -g http-server \
+    && ln -s vnc.html index.html
+
+# Install websockify
+RUN cd /tmp \
+    && wget -qO- https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz \
+    && mv websockify-0.12.0 /opt/websockify \
+    && cd /opt/websockify \
+    && python3 setup.py install
+
+# Create development directories
+RUN mkdir -p $HOME/.vnc \
+    && mkdir -p $HOME/.config/gimp \
+    && mkdir -p $HOME/Desktop \
+    && mkdir -p $HOME/.config/openbox \
+    && mkdir -p $HOME/Projects \
+    && mkdir -p /opt/gimp-scripts \
+    && mkdir -p /var/log/supervisor \
+    && chown -R gimp:gimp $HOME
+
+# Create development VNC startup script
+RUN cat > $HOME/.vnc/xstartup << 'EOF'
+#!/bin/bash
+export XKL_XMODMAP_DISABLE=1
+export XDG_CURRENT_DESKTOP="XFCE"
+export XDG_MENU_PREFIX="xfce-"
+set -x
+
+# Start window manager
+openbox &
+
+# Start file manager
+pcmanfm --desktop &
+
+# Start terminal
+xfce4-terminal &
+
+# Start GIMP
+gimp &
+
+# Start development tools
+# code-server (if installed)
+if command -v code-server &> /dev/null; then
+    code-server --bind-addr 0.0.0.0:8443 --auth none &
+fi
+
+EOF
+
+RUN chmod +x $HOME/.vnc/xstartup
+
+# Create supervisor config for development
+RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
+[supervisord]
+nodaemon=true
+user=root
+
+[program:vncserver]
+command=/usr/bin/vncserver :1 -geometry 1920x1080 -depth 24
+user=gimp
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/vncserver.log
+stderr_logfile=/var/log/supervisor/vncserver.err
+
+[program:novnc]
+command=/opt/websockify/run --web=/opt/noVNC 6080 localhost:5901
+user=gimp
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/novnc.log
+stderr_logfile=/var/log/supervisor/novnc.err
+
+[program:pulseaudio]
+command=pulseaudio --system --realtime=false --disallow-module-loading
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/pulseaudio.log
+stderr_logfile=/var/log/supervisor/pulseaudio.err
+EOF
+
+# Create development entrypoint
+RUN cat > /opt/gimp-scripts/dev-entrypoint.sh << 'EOF'
+#!/bin/bash
+set -e
+
+# Create VNC password
+mkdir -p $HOME/.vnc
+echo "$VNC_PASSWORD" | vncpasswd -f > $HOME/.vnc/passwd
+chmod 600 $HOME/.vnc/passwd
+
+# Start D-Bus
+if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+    eval $(dbus-launch --sh-syntax)
+fi
+
+# Start supervisor
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+EOF
+
+RUN chmod +x /opt/gimp-scripts/dev-entrypoint.sh \
+    && chown -R gimp:gimp $HOME /opt/gimp-scripts
+
+# Expose ports
+EXPOSE 5901 6080 8080 8443
+
+# Set working directory
+WORKDIR $HOME
+
+# Switch to user
+USER gimp
+
+# Development health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${NOVNC_PORT}/ || exit 1
+
+# Start development environment
+CMD ["/opt/gimp-scripts/dev-entrypoint.sh"]

@@ -1,0 +1,230 @@
+# Authentication Service Development Dockerfile
+# Development version with hot reloading and debugging
+
+FROM golang:1.21-alpine
+
+# Set labels
+LABEL maintainer="GIMP Streaming Platform <platform@gimp-streaming.com>"
+LABEL description="Development authentication service"
+LABEL version="dev"
+
+# Set environment variables
+ENV APP_ENV=development
+ENV APP_PORT=8080
+ENV LOG_LEVEL=debug
+ENV JWT_EXPIRY=24h
+ENV REFRESH_TOKEN_EXPIRY=168h
+
+# Install development dependencies
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata \
+    curl \
+    bash \
+    vim \
+    air \
+    # Database clients
+    postgresql-client \
+    redis
+
+# Create app user
+RUN addgroup -g 1001 -S auth && \
+    adduser -S auth -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY --chown=auth:auth go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download && go mod verify
+
+# Copy source code
+COPY --chown=auth:auth . .
+
+# Install Air for hot reloading (if not installed via apk)
+RUN go install github.com/cosmtrek/air@latest
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/tmp /app/config && \
+    chown -R auth:auth /app
+
+# Create Air configuration
+RUN cat > .air.toml << 'EOF'
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+  args_bin = []
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main ./cmd/main.go"
+  delay = 1000
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", ".git", "node_modules"]
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  include_dir = []
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  include_file = []
+  kill_delay = "0s"
+  log = "build-errors.log"
+  poll = false
+  poll_interval = 0
+  rerun = false
+  rerun_delay = 500
+  send_interrupt = false
+  stop_on_root = false
+
+[color]
+  app = ""
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "cyan"
+
+[log]
+  main_only = false
+  time = false
+
+[misc]
+  clean_on_exit = false
+
+[screen]
+  clear_on_rebuild = false
+  keep_scroll = true
+EOF
+
+# Create development startup script
+RUN cat > /app/dev-start.sh << 'EOF'
+#!/bin/sh
+set -e
+
+echo "Starting Authentication Service in Development Mode..."
+echo "Environment: $APP_ENV"
+echo "Port: $APP_PORT"
+echo "Log Level: $LOG_LEVEL"
+
+# Create log directory
+mkdir -p /app/logs
+
+# Wait for database to be ready
+if [ -n "$DATABASE_URL" ]; then
+    echo "Waiting for database..."
+    DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\):.*/\1/p')
+    DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+    while ! nc -z $DB_HOST $DB_PORT 2>/dev/null; do
+        echo "Waiting for database at $DB_HOST:$DB_PORT..."
+        sleep 1
+    done
+    echo "Database is ready!"
+fi
+
+# Wait for Redis to be ready
+if [ -n "$REDIS_URL" ]; then
+    echo "Waiting for Redis..."
+    REDIS_HOST=$(echo $REDIS_URL | sed -n 's/.*:\/\/\([^:]*\):.*/\1/p')
+    REDIS_PORT=$(echo $REDIS_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+    while ! nc -z $REDIS_HOST $REDIS_PORT 2>/dev/null; do
+        echo "Waiting for Redis at $REDIS_HOST:$REDIS_PORT..."
+        sleep 1
+    done
+    echo "Redis is ready!"
+fi
+
+# Run database migrations
+if command -v migrate >/dev/null 2>&1; then
+    echo "Running database migrations..."
+    migrate -path ./migrations -database "$DATABASE_URL" up
+fi
+
+# Start with Air for hot reloading
+exec air
+EOF
+
+RUN chmod +x /app/dev-start.sh
+
+# Create debugging utilities
+RUN cat > /app/debug.sh << 'EOF'
+#!/bin/sh
+echo "=== Authentication Service Debug Info ==="
+echo "Go version: $(go version)"
+echo "Environment: $APP_ENV"
+echo "Working directory: $(pwd)"
+echo "User: $(whoami)"
+echo "Process ID: $$"
+echo "Environment variables:"
+env | grep -E "(APP_|DATABASE_|REDIS_|JWT_)" | sort
+echo "Database connection test:"
+if [ -n "$DATABASE_URL" ]; then
+    echo "$DATABASE_URL" | psql -At -c "SELECT 1;" 2>/dev/null && echo "✓ Database connected" || echo "✗ Database connection failed"
+fi
+echo "Redis connection test:"
+if [ -n "$REDIS_URL" ]; then
+    redis-cli -u "$REDIS_URL" ping 2>/dev/null && echo "✓ Redis connected" || echo "✗ Redis connection failed"
+fi
+echo "Memory usage:"
+free -h
+echo "Network connections:"
+netstat -tlnp 2>/dev/null || ss -tlnp
+EOF
+
+RUN chmod +x /app/debug.sh
+
+# Create test script
+RUN cat > /app/test.sh << 'EOF'
+#!/bin/sh
+echo "=== Running Authentication Service Tests ==="
+
+# Run unit tests
+echo "Running unit tests..."
+go test -v ./...
+
+# Run integration tests
+if [ -d "test/integration" ]; then
+    echo "Running integration tests..."
+    go test -v ./test/integration/...
+fi
+
+# Run tests with coverage
+echo "Running tests with coverage..."
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out -o coverage.html
+
+echo "=== All tests completed ==="
+echo "Coverage report: coverage.html"
+EOF
+
+RUN chmod +x /app/test.sh
+
+# Create healthcheck script
+RUN cat > /app/healthcheck.sh << 'EOF'
+#!/bin/sh
+set -e
+
+# Check if the service is responding
+if curl -f http://localhost:${APP_PORT:-8080}/health > /dev/null 2>&1; then
+    exit 0
+else
+    exit 1
+fi
+EOF
+
+RUN chmod +x /app/healthcheck.sh
+
+# Switch to app user
+USER auth
+
+# Expose ports
+EXPOSE 8080
+
+# Development health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /app/healthcheck.sh
+
+# Start development server
+CMD ["/app/dev-start.sh"]

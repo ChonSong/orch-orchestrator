@@ -1,1 +1,64 @@
 ⚡ ORCH: Intelligent routing enabled...
+
+  #  node[3437873]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno
+  #  node[3437935]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+_location ()) == 1)
+
+----- Native stack trace -----
+
+----- Native stack trace -----
+
+
+  #  /usr/bin/node[3438595]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+[API Error: setRawMode EIO]
+An unexpected critical error occurred:
+Error: setRawMode EIO
+    at ReadStream.setRawMode (node:tty:76:24)
+    at setupStdinCancellation (file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:51:27)
+    at file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:103:13
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at runNonInteractive (file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:16:28)
+    at main (file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/gemini.js:361:15)
+ 1: 0x7f090e56fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 1: 0x7f73f876fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7f73f871c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7f73f871c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7f73f7a49df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f73f7aa49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f73f7a99668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7f73f7a99c9c  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7f73f7a9c158 pthread_cond_wait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7f73fb1844ed uv_cond_wait [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7f73f87ecbdb  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7f090e51c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7f090e51c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+11: 0x7f73f7a9cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+12: 0x7f73f7b1a7b8  [/lib/x86_64-linux-gnu/libc.so.6]
+ 4: 0x7f090d849df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f090d8a49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f090d899668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7f090d899c9c  [/lib/x86_64-linux-gnu/libc.so.6]
+ 1: 0x7f592a16fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7f592a11c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7f592a11c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7f5929449df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f59294a49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f5929499668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7f5929499c9c  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7f592949c158 pthread_cond_wait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7f592cc2c4ed uv_cond_wait [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7f592a1ecbdb  [/lib/x86_64-linux-gnu/libnode.so.115]
+11: 0x7f592949cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+12: 0x7f592951a7b8  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7f090d89c158 pthread_cond_wait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7f0910fc14ed uv_cond_wait [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7f090e5ecbdb  [/lib/x86_64-linux-gnu/libnode.so.115]
+11: 0x7f090d89cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+12: 0x7f090d91a7b8  [/lib/x86_64-linux-gnu/libc.so.6]

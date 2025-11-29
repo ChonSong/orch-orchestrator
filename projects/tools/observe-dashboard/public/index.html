@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observe | Agentic System</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="icon">🔭</span>
+                <h1>Observe</h1>
+            </div>
+            <div class="status">
+                <span id="connection-status">Connecting...</span>
+                <div id="status-dot" class="dot"></div>
+            </div>
+        </header>
+
+        <main>
+            <div class="grid">
+                <!-- Metrics Card -->
+                <div class="card metrics-card">
+                    <h2>System Metrics</h2>
+                    <div class="metrics-grid" id="metrics-container">
+                        <div class="metric-item">
+                            <label>Stability</label>
+                            <span id="metric-stability">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <label>Cost</label>
+                            <span id="metric-cost">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <label>Entropy</label>
+                            <span id="metric-entropy">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <label>Step</label>
+                            <span id="metric-step">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graph Visualization -->
+                <div class="card graph-card">
+                    <h2>Topology</h2>
+                    <div id="graph-viz" class="graph-container">
+                        <!-- Nodes will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- History Feed -->
+                <div class="card history-card">
+                    <h2>Event Log</h2>
+                    <div class="history-scroll">
+                        <ul id="history-list">
+                            <!-- Log items -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Chat Sidebar (New) -->
+                <div class="card sidebar-card">
+                    <h2>Session Details</h2>
+                    <div id="chat-detail-container" class="chat-scroll">
+                        <div class="empty-state">Select a task to view details</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="command-bar">
+            <div id="suggestions" class="suggestions-container">
+                <!-- Chips injected by JS -->
+            </div>
+            <form id="command-form">
+                <div class="mode-switch">
+                    <button type="button" id="mode-orch" class="mode-btn active" title="Orchestrator Mode">🤖</button>
+                    <button type="button" id="mode-bash" class="mode-btn" title="Bash Terminal Mode">💻</button>
+                </div>
+                <div class="input-wrapper">
+                    <span class="prompt" id="prompt-symbol">></span>
+                    <input type="text" id="command-input" list="command-history"
+                        placeholder="Enter instruction for the swarm..." autocomplete="off">
+                    <datalist id="command-history">
+                        <!-- Populated by JS -->
+                    </datalist>
+                </div>
+                <button type="submit" id="send-btn">
+                    <span>EXECUTE</span>
+                </button>
+            </form>
+        </footer>
+    </div>
+    <script src="app.js?v=2"></script>
+</body>
+
+</html>

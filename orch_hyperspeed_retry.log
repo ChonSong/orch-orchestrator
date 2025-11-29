@@ -1,1 +1,66 @@
 ⚡ ORCH: Intelligent routing enabled...
+
+  #  node[3437902]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+
+  #  node[3437953]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+
+  #  /usr/bin/node[3438620]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+----- Native stack trace -----
+
+ 1: 0x7faa95d6fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7faa95d1c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7faa95d1c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7faa95049df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7faa950a49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7faa95099668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7faa95099c9c  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7faa9509c158 pthread_cond_wait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7faa988264ed uv_cond_wait [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7faa95decbdb  [/lib/x86_64-linux-gnu/libnode.so.115]
+11: 0x7faa9509cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+12: 0x7faa9511a7b8  [/lib/x86_64-linux-gnu/libc.so.6]
+ 1: 0x7f8f5676fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7f8f5671c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7f8f5671c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7f8f55a49df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f8f55aa49ee  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f8f55a99668  [/lib/x86_64-linux-gnu/libc.so.6]
+ 7: 0x7f8f55a996ad  [/lib/x86_64-linux-gnu/libc.so.6]
+ 8: 0x7f8f55b1aa1d epoll_pwait [/lib/x86_64-linux-gnu/libc.so.6]
+ 9: 0x7f8f5912c9d1  [/lib/x86_64-linux-gnu/libuv.so.1]
+10: 0x7f8f59118e56 uv_run [/lib/x86_64-linux-gnu/libuv.so.1]
+11: 0x7f8f567f20a6 node::WorkerThreadsTaskRunner::DelayedTaskScheduler::Start()::{lambda(void*)#1}::_FUN(void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+12: 0x7f8f55a9cb7b  [/lib/x86_64-linux-gnu/libc.so.6]
+13: 0x7f8f55b1a7b8  [/lib/x86_64-linux-gnu/libc.so.6]
+ 1: 0x7f6865f6fd9d node::Assert(node::AssertionInfo const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 2: 0x7f6865f1c8e6  [/lib/x86_64-linux-gnu/libnode.so.115]
+ 3: 0x7f6865f1c9f0 node::SignalExit(int, siginfo_t*, void*) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 4: 0x7f6865249df0  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7f686530ef26 tcsetattr [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7f6868a3e87f uv_tty_set_mode [/lib/x86_64-linux-gnu/libuv.so.1]
+ 7: 0x7f68660b28c9 node::TTYWrap::SetRawMode(v8::FunctionCallbackInfo<v8::Value> const&) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 8: 0x7f68664551ec v8::internal::FunctionCallbackArguments::Call(v8::internal::CallHandlerInfo) [/lib/x86_64-linux-gnu/libnode.so.115]
+ 9: 0x7f686645574b  [/lib/x86_64-linux-gnu/libnode.so.115]
+10: 0x7f6866455f30 v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [/lib/x86_64-linux-gnu/libnode.so.115]
+11: 0x7f68662dadf6  [/lib/x86_64-linux-gnu/libnode.so.115]
+
+----- JavaScript stack trace -----
+
+1: ReadStream.setRawMode (node:tty:74:29)
+2: setupStdinCancellation (file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:51:27)
+3: file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:103:13
+4: run (node:async_hooks:346:14)
+5: runNonInteractive (file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/nonInteractiveCli.js:16:28)
+6: main (file:///usr/local/lib/node_modules/@google/gemini-cli/dist/src/gemini.js:361:15)
+
+

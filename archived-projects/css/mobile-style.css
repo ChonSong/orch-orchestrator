@@ -1,0 +1,240 @@
+/* Mobile UI Improvements for code-server */
+
+/* Touch-friendly interface */
+@media (max-width: 768px) {
+    /* Increase touch target sizes */
+    .monaco-editor .monaco-action-bar {
+        padding: 8px;
+    }
+
+    .monaco-editor .monaco-action-bar .action-item {
+        margin: 2px;
+        padding: 8px;
+    }
+
+    /* Improve sidebar navigation on mobile */
+    .part.titlebar {
+        height: auto !important;
+        padding: 10px;
+    }
+
+    .monaco-workbench .part.editor > .content .editor-group-container {
+        padding: 8px;
+    }
+
+    /* File explorer improvements */
+    .monaco-workbench .explorer-folders-view,
+    .monaco-workbench .explorer-editors-view {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .monaco-workbench .explorer-item {
+        padding: 8px 12px;
+        min-height: 36px;
+    }
+
+    /* Tab improvements */
+    .monaco-workbench .part.tabs .tabs-container {
+        font-size: 12px;
+        height: auto;
+        padding: 4px;
+    }
+
+    .monaco-workbench .part.tabs .tab {
+        padding: 8px 12px;
+        min-width: 120px;
+    }
+
+    /* Terminal improvements */
+    .monaco-workbench .panel.terminal {
+        font-size: 12px;
+    }
+
+    /* Status bar improvements */
+    .monaco-workbench .part.statusbar {
+        font-size: 11px;
+        height: auto;
+        padding: 4px;
+    }
+
+    /* Context menu improvements */
+    .monaco-workbench .context-view {
+        font-size: 14px;
+    }
+
+    .monaco-workbench .context-view .monaco-menu {
+        min-height: 36px;
+    }
+
+    .monaco-workbench .context-view .monaco-menu .menu-item {
+        padding: 12px 16px;
+        min-height: 40px;
+    }
+
+    /* Modal improvements */
+    .monaco-workbench .monaco-dialog-box {
+        min-width: 300px;
+        max-width: 90vw;
+    }
+
+    .monaco-workbench .monaco-dialog-box .dialog-message {
+        font-size: 14px;
+        padding: 16px;
+    }
+
+    /* Editor improvements */
+    .monaco-editor {
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .monaco-editor .margin {
+        padding: 8px;
+    }
+
+    /* Scrollbar improvements for touch */
+    .monaco-scrollable-element > .scrollbar > .slider {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    /* Search improvements */
+    .monaco-workbench .search-view .results,
+    .monaco-workbench .search-view .monaco-tree {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .monaco-workbench .search-view .monaco-inputbox {
+        height: 36px;
+        font-size: 16px;
+        padding: 8px 12px;
+    }
+
+    /* Extensions view improvements */
+    .monaco-workbench .extensions-view {
+        font-size: 14px;
+    }
+
+    .monaco-workbench .extensions-view .extension {
+        padding: 12px;
+    }
+
+    /* Settings improvements */
+    .monaco-workbench .preferences-editor .settings-tree .setting-item {
+        padding: 12px;
+        min-height: 60px;
+    }
+
+    .monaco-workbench .preferences-editor .settings-tree .setting-item-label {
+        font-size: 14px;
+    }
+
+    /* Command palette improvements */
+    .monaco-workbench .quick-input-widget {
+        font-size: 14px;
+        max-width: 90vw;
+    }
+
+    .monaco-workbench .quick-input-widget .quick-input-list {
+        max-height: 60vh;
+    }
+
+    /* Improved contrast and readability */
+    .monaco-workbench {
+        background-color: var(--vscode-editor-background);
+    }
+
+    .monaco-workbench .editor-group-container {
+        border: 1px solid var(--vscode-panel-border);
+    }
+
+    /* Better touch feedback */
+    .monaco-workbench .monaco-action-bar .action-item:hover,
+    .monaco-workbench .explorer-item:hover,
+    .monaco-workbench .tab:hover {
+        background-color: var(--vscode-list-hoverBackground);
+        transition: background-color 0.15s ease;
+    }
+
+    /* Prevent accidental text selection while scrolling */
+    .monaco-workbench .part.editor,
+    .monaco-workbench .part.sidebar {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+
+    /* Better pinch-to-zoom support */
+    .monaco-editor {
+        touch-action: pan-y pinch-zoom;
+    }
+
+    /* Improved mobile toolbar */
+    .monaco-workbench .composite.titlebar {
+        height: auto;
+        min-height: 44px;
+        padding: 8px;
+    }
+
+    .monaco-workbench .activitybar {
+        width: 48px;
+    }
+
+    .monaco-workbench .activitybar .action-item {
+        padding: 12px 8px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .monaco-workbench .part.tabs .tab {
+        min-width: 80px;
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    .monaco-editor {
+        font-size: 11px;
+    }
+
+    .monaco-workbench .part.sidebar {
+        min-width: 200px;
+    }
+
+    .monaco-workbench .part.statusbar {
+        font-size: 10px;
+    }
+}
+
+/* Landscape orientation on phones */
+@media (max-width: 768px) and (max-height: 500px) {
+    .monaco-workbench .part.titlebar {
+        height: 32px;
+    }
+
+    .monaco-workbench .part.statusbar {
+        height: 20px;
+    }
+
+    .monaco-workbench .part.tabs {
+        height: 32px;
+    }
+
+    .monaco-workbench .composite.titlebar {
+        min-height: 32px;
+    }
+}
+
+/* Hide scrollbars on mobile for cleaner look */
+@media (max-width: 768px) {
+    .monaco-scrollable-element > .scrollbar {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .monaco-scrollable-element > .scrollbar:hover {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

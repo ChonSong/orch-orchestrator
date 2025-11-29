@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+require('dotenv').config({ path: process.env.HOME + '/.ai-keys.env' });
+const axios = require('axios');
+
+const KIMIK2_ENDPOINT = process.env.KIMIK2_ENDPOINT || 'https://api.kimik.ai/v1';
+const KIMIK2_API_KEY = process.env.KIMIK2_API_KEY;
+
+async function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    console.error('Usage: kimik2 "your question here"');
+    process.exit(1);
+  }
+
+  const query = args.join(' ');
+
+  try {
+    const response = await axios.post(
+      `${KIMIK2_ENDPOINT}/chat/completions`,
+      {
+        model: 'kimik2-fast',
+        messages: [{ role: 'user', content: query }],
+        stream: false
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${KIMIK2_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log(response.data.choices[0].message.content);
+  } catch (error) {
+    console.error('Error:', error.message);
+    process.exit(1);
+  }
+}
+
+main();

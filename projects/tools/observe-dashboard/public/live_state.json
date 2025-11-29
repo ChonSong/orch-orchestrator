@@ -1,0 +1,925 @@
+{
+  "nodes": [
+    {
+      "id": "user",
+      "type": "user",
+      "label": "User",
+      "status": "idle"
+    },
+    {
+      "id": "orch",
+      "type": "orchestrator",
+      "label": "Orchestrator",
+      "status": "idle"
+    },
+    {
+      "id": "architect",
+      "type": "agent",
+      "label": "architect",
+      "status": "idle"
+    },
+    {
+      "id": "coder",
+      "type": "agent",
+      "label": "coder",
+      "status": "idle"
+    },
+    {
+      "id": "tester",
+      "type": "agent",
+      "label": "tester",
+      "status": "idle"
+    },
+    {
+      "id": "reviewer",
+      "type": "agent",
+      "label": "reviewer",
+      "status": "idle"
+    },
+    {
+      "id": "quality-gate",
+      "type": "agent",
+      "label": "quality-gate",
+      "status": "idle"
+    },
+    {
+      "id": "claude-implement",
+      "type": "agent",
+      "label": "claude-implement",
+      "status": "idle"
+    }
+  ],
+  "edges": [
+    {
+      "source": "user",
+      "target": "orch",
+      "type": "command",
+      "status": "active"
+    },
+    {
+      "source": "orch",
+      "target": "architect",
+      "type": "delegate",
+      "status": "active"
+    },
+    {
+      "source": "orch",
+      "target": "coder",
+      "type": "delegate",
+      "status": "active"
+    },
+    {
+      "source": "orch",
+      "target": "tester",
+      "type": "delegate",
+      "status": "active"
+    },
+    {
+      "source": "orch",
+      "target": "reviewer",
+      "type": "delegate",
+      "status": "active"
+    },
+    {
+      "source": "orch",
+      "target": "quality-gate",
+      "type": "delegate",
+      "status": "active"
+    },
+    {
+      "source": "orch",
+      "target": "claude-implement",
+      "type": "delegate",
+      "status": "active"
+    }
+  ],
+  "metrics": {
+    "centrality": {},
+    "entropy": 0,
+    "cost": 0,
+    "communities": {}
+  },
+  "history": [
+    {
+      "stepId": 4,
+      "agent": "orch",
+      "action": "Delegating to coder",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "active"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405829510
+    },
+    {
+      "stepId": 5,
+      "agent": "coder",
+      "action": "Task completed",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405878311
+    },
+    {
+      "stepId": 6,
+      "agent": "orch",
+      "action": "Delegating to tester",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "active"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405878313
+    },
+    {
+      "stepId": 7,
+      "agent": "tester",
+      "action": "Task completed",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405909338
+    },
+    {
+      "stepId": 8,
+      "agent": "orch",
+      "action": "Delegating to reviewer",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        },
+        {
+          "id": "reviewer",
+          "type": "agent",
+          "label": "reviewer",
+          "status": "active"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "reviewer",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405909339
+    },
+    {
+      "stepId": 9,
+      "agent": "reviewer",
+      "action": "Task completed",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        },
+        {
+          "id": "reviewer",
+          "type": "agent",
+          "label": "reviewer",
+          "status": "idle"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "reviewer",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405952031
+    },
+    {
+      "stepId": 10,
+      "agent": "orch",
+      "action": "Delegating to quality-gate",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        },
+        {
+          "id": "reviewer",
+          "type": "agent",
+          "label": "reviewer",
+          "status": "idle"
+        },
+        {
+          "id": "quality-gate",
+          "type": "agent",
+          "label": "quality-gate",
+          "status": "active"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "reviewer",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "quality-gate",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405952032
+    },
+    {
+      "stepId": 11,
+      "agent": "quality-gate",
+      "action": "Task completed",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        },
+        {
+          "id": "reviewer",
+          "type": "agent",
+          "label": "reviewer",
+          "status": "idle"
+        },
+        {
+          "id": "quality-gate",
+          "type": "agent",
+          "label": "quality-gate",
+          "status": "idle"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "reviewer",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "quality-gate",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405952034
+    },
+    {
+      "stepId": 12,
+      "agent": "orch",
+      "action": "Delegating to claude-implement",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        },
+        {
+          "id": "reviewer",
+          "type": "agent",
+          "label": "reviewer",
+          "status": "idle"
+        },
+        {
+          "id": "quality-gate",
+          "type": "agent",
+          "label": "quality-gate",
+          "status": "idle"
+        },
+        {
+          "id": "claude-implement",
+          "type": "agent",
+          "label": "claude-implement",
+          "status": "active"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "reviewer",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "quality-gate",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "claude-implement",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405952035
+    },
+    {
+      "stepId": 13,
+      "agent": "claude-implement",
+      "action": "Task completed",
+      "nodes": [
+        {
+          "id": "user",
+          "type": "user",
+          "label": "User",
+          "status": "idle"
+        },
+        {
+          "id": "orch",
+          "type": "orchestrator",
+          "label": "Orchestrator",
+          "status": "idle"
+        },
+        {
+          "id": "architect",
+          "type": "agent",
+          "label": "architect",
+          "status": "idle"
+        },
+        {
+          "id": "coder",
+          "type": "agent",
+          "label": "coder",
+          "status": "idle"
+        },
+        {
+          "id": "tester",
+          "type": "agent",
+          "label": "tester",
+          "status": "idle"
+        },
+        {
+          "id": "reviewer",
+          "type": "agent",
+          "label": "reviewer",
+          "status": "idle"
+        },
+        {
+          "id": "quality-gate",
+          "type": "agent",
+          "label": "quality-gate",
+          "status": "idle"
+        },
+        {
+          "id": "claude-implement",
+          "type": "agent",
+          "label": "claude-implement",
+          "status": "idle"
+        }
+      ],
+      "edges": [
+        {
+          "source": "user",
+          "target": "orch",
+          "type": "command",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "architect",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "coder",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "tester",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "reviewer",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "quality-gate",
+          "type": "delegate",
+          "status": "active"
+        },
+        {
+          "source": "orch",
+          "target": "claude-implement",
+          "type": "delegate",
+          "status": "active"
+        }
+      ],
+      "metrics": {
+        "centrality": {},
+        "entropy": 0,
+        "cost": 0,
+        "communities": {}
+      },
+      "timestamp": 1764405952036
+    }
+  ],
+  "lastUpdate": 1764405952036
+}

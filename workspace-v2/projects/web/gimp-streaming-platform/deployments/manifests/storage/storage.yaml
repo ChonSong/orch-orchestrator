@@ -1,0 +1,169 @@
+# Persistent Storage for GIMP Streaming Platform
+# Includes PVCs for user data, application data, and temporary storage
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gimp-user-data-pv
+  namespace: gimp-streaming
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: storage
+    type: user-data
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-storage
+  nfs:
+    server: nfs-server.example.com
+    path: /data/gimp-user-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gimp-user-data-pvc
+  namespace: gimp-streaming
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: storage
+    type: user-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-storage
+  selector:
+    matchLabels:
+      type: user-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-pvc
+  namespace: gimp-streaming
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: fast-ssd
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+  namespace: gimp-streaming
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: cache
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-data-pvc
+  namespace: gimp-streaming-monitoring
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-data-pvc
+  namespace: gimp-streaming-monitoring
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: fast-ssd
+---
+# Storage Classes
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: storage-class
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  iops: "3000"
+  throughput: "125"
+  fsType: ext4
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-storage
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: storage-class
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: nfs-server.example.com
+  share: /data/gimp-user-data
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+---
+# ConfigMap for NFS provisioning
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nfs-provisioner-config
+  namespace: gimp-streaming
+  labels:
+    app.kubernetes.io/name: gimp-streaming
+    app.kubernetes.io/component: storage
+data:
+  nfs.conf: |
+    # NFS Provisioner Configuration
+    [General]
+    domain = gimp-streaming.local
+
+    [Storage]
+    default-storage-class = nfs-storage
+    reclaim-policy = Retain
+
+    [Performance]
+    read-ahead = 1M
+    write-behind = 1M
+    rsize = 1M
+    wsize = 1M
+
+    [Security]
+    squash = root
+    anonuid = 65534
+    anongid = 65534
