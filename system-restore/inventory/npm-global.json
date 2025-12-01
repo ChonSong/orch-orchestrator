@@ -1,0 +1,49 @@
+{
+  "name": "lib",
+  "dependencies": {
+    "@google/gemini-cli": {
+      "version": "0.17.1",
+      "overridden": false
+    },
+    "@google/generative-ai": {
+      "version": "0.24.1",
+      "overridden": false
+    },
+    "@playwright/test": {
+      "version": "1.56.1",
+      "overridden": false
+    },
+    "axios": {
+      "version": "1.13.2",
+      "overridden": false
+    },
+    "dotenv": {
+      "version": "17.2.3",
+      "overridden": false
+    },
+    "jest": {
+      "version": "30.2.0",
+      "overridden": false
+    },
+    "lighthouse": {
+      "version": "13.0.1",
+      "overridden": false
+    },
+    "playwright": {
+      "version": "1.56.1",
+      "overridden": false
+    },
+    "pm2": {
+      "version": "6.0.13",
+      "overridden": false
+    },
+    "vitest": {
+      "version": "4.0.13",
+      "overridden": false
+    },
+    "wrangler": {
+      "version": "4.51.0",
+      "overridden": false
+    }
+  }
+}

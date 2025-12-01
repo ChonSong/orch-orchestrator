@@ -1,0 +1,12 @@
+lib
+gemini-cli
+generative-ai
+test
+axios
+dotenv
+jest
+lighthouse
+playwright
+pm2
+vitest
+wrangler
