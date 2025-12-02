@@ -8,6 +8,7 @@ echo "Starting System Restore from $INVENTORY_DIR..."
 # 1. Restore Dotfiles
 echo "Restoring dotfiles..."
 cp -r "$INVENTORY_DIR/dotfiles/." ~/
+cp -r "$INVENTORY_DIR/dotfiles/.antigravity" ~/ 2>/dev/null
 # Fix SSH permissions
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/config 2>/dev/null

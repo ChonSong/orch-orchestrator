@@ -36,6 +36,7 @@ cp ~/.bashrc "$BACKUP_DIR/dotfiles/.bashrc" 2>/dev/null
 cp ~/.profile "$BACKUP_DIR/dotfiles/.profile" 2>/dev/null
 cp ~/.gitconfig "$BACKUP_DIR/dotfiles/.gitconfig" 2>/dev/null
 cp ~/.zshrc "$BACKUP_DIR/dotfiles/.zshrc" 2>/dev/null
+cp -r ~/.antigravity "$BACKUP_DIR/dotfiles/.antigravity" 2>/dev/null
 
 # 6. SSH Config (Public keys and config only, NO PRIVATE KEYS)
 mkdir -p "$BACKUP_DIR/dotfiles/.ssh"
