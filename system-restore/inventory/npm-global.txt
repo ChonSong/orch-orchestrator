@@ -1,4 +1,6 @@
-generative-ai
+@google/gemini-cli
+@google/generative-ai
+@playwright/test
 axios
 dotenv
 jest
