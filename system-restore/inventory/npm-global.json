@@ -2,7 +2,7 @@
   "name": "lib",
   "dependencies": {
     "@google/gemini-cli": {
-      "version": "0.17.1",
+      "version": "0.18.4",
       "overridden": false
     },
     "@google/generative-ai": {
@@ -21,6 +21,10 @@
       "version": "17.2.3",
       "overridden": false
     },
+    "generative-ai": {
+      "version": "0.1.4",
+      "overridden": false
+    },
     "jest": {
       "version": "30.2.0",
       "overridden": false
@@ -30,15 +34,15 @@
       "overridden": false
     },
     "playwright": {
-      "version": "1.56.1",
+      "version": "1.57.0",
       "overridden": false
     },
     "pm2": {
-      "version": "6.0.13",
+      "version": "6.0.14",
       "overridden": false
     },
     "vitest": {
-      "version": "4.0.13",
+      "version": "4.0.14",
       "overridden": false
     },
     "wrangler": {

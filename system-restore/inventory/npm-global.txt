@@ -3,6 +3,7 @@
 @playwright/test
 axios
 dotenv
+generative-ai
 jest
 lighthouse
 playwright
