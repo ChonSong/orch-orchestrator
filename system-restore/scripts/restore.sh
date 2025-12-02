@@ -47,10 +47,9 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 if ! command -v node &> /dev/null; then
-    echo "Node.js not found, installing Node.js v18 LTS using NVM..."
-    nvm install 18
-    nvm use 18
-    nvm alias default 18
+    echo "Node.js not found, installing the latest stable Node.js using NVM..."
+    nvm install node
+    nvm alias default node
 else
     echo "Node.js already installed."
 fi
