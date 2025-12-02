@@ -29,10 +29,35 @@ else
     echo "No apt-packages.list found, skipping."
 fi
 
-# 3. NPM Globals
+# 3. Install NVM and Node.js (if not present)
+echo "Checking for NVM and Node.js..."
+
+if [ ! -d "$HOME/.nvm" ]; then
+    echo "NVM not found, installing NVM..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+    # Source NVM for the current session
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
+
+# Source NVM if already installed but not sourced in current script
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+if ! command -v node &> /dev/null; then
+    echo "Node.js not found, installing Node.js v18 LTS using NVM..."
+    nvm install 18
+    nvm use 18
+    nvm alias default 18
+else
+    echo "Node.js already installed."
+fi
+
+# 4. NPM Globals
 echo "Restoring NPM Global packages..."
 if [ -f "$INVENTORY_DIR/npm-global.txt" ]; then
-    xargs -a "$INVENTORY_DIR/npm-global.txt" sudo npm install -g
+    xargs -a "$INVENTORY_DIR/npm-global.txt" npm install -g
 elif [ -f "$INVENTORY_DIR/npm-global.json" ]; then
     echo "Warning: npm-global.txt missing, manual install required from json."
 fi
