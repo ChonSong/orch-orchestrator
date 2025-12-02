@@ -21,8 +21,10 @@ echo "Note: This requires sudo. You may be prompted for a password."
 # This is a 'safe' restore that tries to install missing packages
 # It does NOT remove packages that are present but not in the list (to be safe)
 if [ -f "$INVENTORY_DIR/apt-packages.list" ]; then
+    sudo apt-get update
     sudo dpkg --set-selections < "$INVENTORY_DIR/apt-packages.list"
     sudo apt-get dselect-upgrade -y
+    sudo apt-get install -f
 else
     echo "No apt-packages.list found, skipping."
 fi
@@ -50,6 +52,7 @@ fi
 # 5. PM2 Processes
 echo "Restoring PM2 processes..."
 if [ -f "$INVENTORY_DIR/pm2-dump.json" ]; then
+    mkdir -p ~/.pm2
     cp "$INVENTORY_DIR/pm2-dump.json" ~/.pm2/dump.pm2
     pm2 resurrect
 fi

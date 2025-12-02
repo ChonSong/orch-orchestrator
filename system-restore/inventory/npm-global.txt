@@ -1,5 +1,3 @@
-lib
-gemini-cli
 generative-ai
 test
 axios
