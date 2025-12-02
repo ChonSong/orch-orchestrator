@@ -1,5 +1,4 @@
 generative-ai
-test
 axios
 dotenv
 jest

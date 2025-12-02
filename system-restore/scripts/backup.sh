@@ -13,7 +13,7 @@ dpkg --get-selections > "$BACKUP_DIR/apt-packages.list"
 # 2. Node.js / NPM
 echo "Backing up Global NPM packages..."
 npm list -g --depth=0 --json > "$BACKUP_DIR/npm-global.json"
-npm list -g --depth=0 --parseable | awk -F/ '{print $NF}' | grep -v "^npm$" | grep -v "^lib$" | grep -v "gemini-cli" > "$BACKUP_DIR/npm-global.txt"
+npm list -g --depth=0 --parseable | awk -F/ '{print $NF}' | grep -v "^npm$" | grep -v "^lib$" | grep -v "gemini-cli" | grep -v "^test$" > "$BACKUP_DIR/npm-global.txt"
 
 # 3. PM2 Process List
 echo "Backing up PM2 configuration..."
