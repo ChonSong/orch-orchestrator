@@ -2,7 +2,7 @@
   "name": "lib",
   "dependencies": {
     "@google/gemini-cli": {
-      "version": "0.18.4",
+      "version": "0.19.4",
       "overridden": false
     },
     "@google/generative-ai": {
