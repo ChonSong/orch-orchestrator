@@ -193,3 +193,6 @@ if [ -f ~/.ai-keys.env ]; then
     export GEMINI_ENDPOINT
     export KIMIK2_ENDPOINT
 fi
+
+# opencode
+export PATH=/home/seanos1a/.opencode/bin:$PATH
